@@ -14,7 +14,7 @@ const AddCar = () => {
     });
 
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const inputChangeHandler = (e) => {
         const { name, value } = e.target;

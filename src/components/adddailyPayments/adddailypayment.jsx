@@ -27,7 +27,7 @@ const AddDailyPayment = () => {
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
     const [existingDates, setExistingDates] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const inputHandler = (e) => {
         const { name, value } = e.target;

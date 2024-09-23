@@ -13,7 +13,7 @@ const Add = () => {
         address: "",
     }
     const [user, setUser] = useState(users);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const inputHandler = (e) => {
