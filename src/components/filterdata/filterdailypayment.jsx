@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "../../App.css";
 import axios from 'axios';
+import Spinner from '../../Spinner';
 
 const FilterDailyPayment = () => {
     const [payments, setPayments] = useState([]);
@@ -11,13 +12,22 @@ const FilterDailyPayment = () => {
     const [carAssigns, setCarAssigns] = useState([]);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await axios.get("http://localhost:8000/api/dailyPayments/getAllPayments");
-            const sortedPayments = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
-            setPayments(sortedPayments);
-            setFilteredPayments(response.data);
+            setLoading(true); // Show spinner while fetching
+            try {
+                const response = await axios.get("https://cabtest.onrender.com/api/dailyPayments/getAllPayments");
+                const sortedPayments = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setPayments(sortedPayments);
+                setFilteredPayments(response.data);
+            }
+            catch (error) {
+                console.error("Error fetching daily payment data:", error);
+            } finally {
+                setLoading(false); // Hide spinner after fetching
+            }
         };
         fetchData();
     }, []);
@@ -103,53 +113,58 @@ const FilterDailyPayment = () => {
                 <label htmlFor='endDate'>To Date </label>
                 <input type="date" id="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
             </div>
-            <div className="tableContainer">
-                <table border={1} cellPadding={10} cellSpacing={0}>
-                    <thead>
-                        <tr>
-                            <th>SL/No</th>
-                            <th>Date</th>
-                            <th>User</th>
-                            <th>Car Assign</th>
-                            <th>Total Earning</th>
-                            <th>Total Cash</th>
-                            <th>CNG</th>
-                            <th>Toll Tax</th>
-                            <th>Payment</th>
-                            <th>Cash Collected</th>
-                            <th>Benefit</th>
-                            <th>Trips</th>
-                            <th>Percentage</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            filteredPayments.map((payment, index) => {
-                                const isNegativeBenefit = Number(payment.benefit) < 0;
-                                return (
-                                    <tr key={payment._id} style={{ backgroundColor: isNegativeBenefit ? 'rgb(225, 102, 102)' : '' }}>
-                                        <td>{index + 1}</td>
-                                        <td>{formatDate(payment.date)}</td>
-                                        <td>{payment.user}</td>
-                                        <td>{payment.carAssign}</td>
-                                        <td>{payment.totalEarning}</td>
-                                        <td>{payment.totalcash}</td>
-                                        <td>{payment.CNG}</td>
-                                        <td>{payment.tollTax}</td>
-                                        <td>{payment.payment}</td>
-                                        <td>{payment.cashCollected}</td>
-                                        <td>{payment.benefit}</td>
-                                        <td>{payment.trips}</td>
-                                        <td>{payment.percentage}</td>
-                                        <td>{payment.description}</td>
-                                    </tr>
-                                );
-                            })
-                        }
-                    </tbody>
-                </table>
-            </div>
+            {/* Show the spinner while loading */}
+            {loading ? (
+                <Spinner loading={loading} />
+            ) : (
+                <div className="tableContainer">
+                    <table border={1} cellPadding={10} cellSpacing={0}>
+                        <thead>
+                            <tr>
+                                <th>SL/No</th>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th>Car Assign</th>
+                                <th>Total Earning</th>
+                                <th>Total Cash</th>
+                                <th>CNG</th>
+                                <th>Toll Tax</th>
+                                <th>Payment</th>
+                                <th>Cash Collected</th>
+                                <th>Benefit</th>
+                                <th>Trips</th>
+                                <th>Percentage</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                filteredPayments.map((payment, index) => {
+                                    const isNegativeBenefit = Number(payment.benefit) < 0;
+                                    return (
+                                        <tr key={payment._id} style={{ backgroundColor: isNegativeBenefit ? 'rgb(225, 102, 102)' : '' }}>
+                                            <td>{index + 1}</td>
+                                            <td>{formatDate(payment.date)}</td>
+                                            <td>{payment.user}</td>
+                                            <td>{payment.carAssign}</td>
+                                            <td>{payment.totalEarning}</td>
+                                            <td>{payment.totalcash}</td>
+                                            <td>{payment.CNG}</td>
+                                            <td>{payment.tollTax}</td>
+                                            <td>{payment.payment}</td>
+                                            <td>{payment.cashCollected}</td>
+                                            <td>{payment.benefit}</td>
+                                            <td>{payment.trips}</td>
+                                            <td>{payment.percentage}</td>
+                                            <td>{payment.description}</td>
+                                        </tr>
+                                    );
+                                })
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            )}
             <div className="totaltable">
                 <table border={1} cellPadding={20} cellSpacing={0}>
                     <thead >

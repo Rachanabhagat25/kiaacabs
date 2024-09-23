@@ -3,21 +3,21 @@ import { Link } from 'react-router-dom';
 import "../../App.css";
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import Spinner from '../../Spinner';
 
 const DailyPayments = () => {
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filteredPayments, setFilteredPayments] = useState([]);
     const [selectedPayments, setSelectedPayments] = useState(new Set());
+    const [heading, setHeading] = useState("--- Daily Payments ---"); 
 
     useEffect(() => {
         const fetchData = async () => {
-            const loadingBar = document.getElementById('loading-bar');
-
-            loadingBar.classList.add('active'); // Start the loading bar
+            setLoading(true);
 
             try {
-                const response = await axios.get("http://localhost:8000/api/dailyPayments/getAllPayments");
+                const response = await axios.get("https://cabtest.onrender.com/api/dailyPayments/getAllPayments");
                 const sortedPayments = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
                 setPayments(sortedPayments);
                 setFilteredPayments(sortedPayments);
@@ -25,8 +25,7 @@ const DailyPayments = () => {
             } catch (error) {
                 console.error("Error fetching payments:", error);
             } finally {
-                loadingBar.classList.add('complete'); // Complete and hide the loading bar
-                setLoading(false);
+                setLoading(false); // Hide spinner after fetching
             }
         };
 
@@ -59,10 +58,18 @@ const DailyPayments = () => {
         });
 
         setFilteredPayments(filtered);
+
+          // Update the heading based on the weekOffset value
+          if (weekOffset === 0) {
+            setHeading("--- Current Week Payments ---");
+        } else if (weekOffset === -1) {
+            setHeading("--- Previous Week Payments ---");
+        }
     };
 
     const showAllPayments = () => {
         setFilteredPayments(payments);
+        setHeading("--- Daily Payments ---");
     };
 
     const calculateTotals = () => {
@@ -115,9 +122,10 @@ const DailyPayments = () => {
         if (selectedPayments.size > 0) {
             const confirmed = window.confirm("Are you sure you want to delete selected Payment?");
             if (confirmed && selectedPayments.size > 0) {
+                setLoading(true);
                 try {
                     const deleteRequests = Array.from(selectedPayments).map(carId =>
-                        axios.delete(`http://localhost:8000/api/dailyPayments/delete/${carId}`)
+                        axios.delete(`https://cabtest.onrender.com/api/dailyPayments/delete/${carId}`)
                     );
                     await Promise.all(deleteRequests);
                     toast.success("Selected payments deleted successfully!", { position: "top-right" });
@@ -131,6 +139,9 @@ const DailyPayments = () => {
                     setSelectedPayments(new Set());
                 } catch (error) {
                     console.error("Error deleting payments:", error);
+                }
+                finally {
+                    setLoading(false); // Stop spinner when operation completes
                 }
             }
         }
@@ -146,12 +157,10 @@ const DailyPayments = () => {
             </div>
             <div>
                 <h1 style={{ textAlign: 'center', fontWeight: 'bold', textShadow: '1px 1px 2px rgb(63, 7, 78)' }}>
-                    --- Daily Payments ---
+                {heading}
                 </h1>
                 <br></br>
                 <div className="actionButtons">
-                    {/* <button onClick={editPayment} disabled={selectedPayments.size !== 1}>Edit Selected</button>
-                    <button onClick={deletePayment} disabled={selectedPayments.size === 0}>Delete Selected</button> */}
                     <button onClick={editPayment}>Edit Selected</button>
                     <button onClick={deletePayment} >Delete Selected</button>
                     <Link to={"/addDailyPayment"} className='addButton'>Add Daily Payment</Link>
@@ -161,61 +170,64 @@ const DailyPayments = () => {
                 </div>
 
             </div>
-            <div className="tableContainer">
-                <table border={1} cellPadding={10} cellSpacing={0}>
-                    <thead>
-                        <tr>
-                            <th>Select</th>
-                            <th>SL/No</th>
-                            <th>Date</th>
-                            <th>User</th>
-                            <th>Car Assign</th>
-                            <th>Total Earning</th>
-                            <th>Total Cash</th>
-                            <th>CNG</th>
-                            <th>Toll Tax</th>
-                            <th>Payment</th>
-                            <th>Cash Collected</th>
-                            <th>Benefit</th>
-                            <th>Trips</th>
-                            <th>Percentage</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            !loading && filteredPayments.map((payment, index) => {
-                                const isNegativeBenefit = Number(payment.benefit) < 0;
-                                return (
-                                    <tr key={payment._id} style={{ backgroundColor: isNegativeBenefit ? 'rgb(225, 102, 102)' : '' }}>
-                                        <td style={{ textAlign: 'center' }}>
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedPayments.has(payment._id)}
-                                                onChange={() => toggleUserSelection(payment._id)}
-                                            />
-                                        </td>
-                                        <td>{index + 1}</td>
-                                        <td>{formatDate(payment.date)}</td>
-                                        <td>{payment.user}</td>
-                                        <td>{payment.carAssign}</td>
-                                        <td>{payment.totalEarning}</td>
-                                        <td>{payment.totalcash}</td>
-                                        <td>{payment.CNG}</td>
-                                        <td>{payment.tollTax}</td>
-                                        <td>{payment.payment}</td>
-                                        <td>{payment.cashCollected}</td>
-                                        <td>{payment.benefit}</td>
-                                        <td>{payment.trips}</td>
-                                        <td>{payment.percentage}</td>
-                                        <td>{payment.description}</td>
-                                    </tr>
-                                )
-                            })
-                        }
-                    </tbody>
-                </table>
-            </div>
+            {loading ? (
+                <Spinner loading={loading} />
+            ) : (
+                <div className="tableContainer">
+                    <table border={1} cellPadding={10} cellSpacing={0}>
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>SL/No</th>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th>Car Assign</th>
+                                <th>Total Earning</th>
+                                <th>Total Cash</th>
+                                <th>CNG</th>
+                                <th>Toll Tax</th>
+                                <th>Payment</th>
+                                <th>Cash Collected</th>
+                                <th>Benefit</th>
+                                <th>Trips</th>
+                                <th>Percentage</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                !loading && filteredPayments.map((payment, index) => {
+                                    const isNegativeBenefit = Number(payment.benefit) < 0;
+                                    return (
+                                        <tr key={payment._id} style={{ backgroundColor: isNegativeBenefit ? 'rgb(225, 102, 102)' : '' }}>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedPayments.has(payment._id)}
+                                                    onChange={() => toggleUserSelection(payment._id)}
+                                                />
+                                            </td>
+                                            <td>{index + 1}</td>
+                                            <td>{formatDate(payment.date)}</td>
+                                            <td>{payment.user}</td>
+                                            <td>{payment.carAssign}</td>
+                                            <td>{payment.totalEarning}</td>
+                                            <td>{payment.totalcash}</td>
+                                            <td>{payment.CNG}</td>
+                                            <td>{payment.tollTax}</td>
+                                            <td>{payment.payment}</td>
+                                            <td>{payment.cashCollected}</td>
+                                            <td>{payment.benefit}</td>
+                                            <td>{payment.trips}</td>
+                                            <td>{payment.percentage}</td>
+                                            <td>{payment.description}</td>
+                                        </tr>
+                                    )
+                                })
+                            }
+                        </tbody>
+                    </table>
+                </div>)}
             <br></br>
             <div className="totaltable">
                 <table border={1} cellPadding={20} cellSpacing={0}>
@@ -248,13 +260,6 @@ const DailyPayments = () => {
                 </table>
             </div>
             <br></br>
-
-            {/* <div className='buttongroup' style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <Link to={"/addDailyPayment"} className='addButton'>Add Daily Payment</Link>
-                <button type="button" className="cancel" onClick={() => filterPayments(0)}>Show This Week</button>
-                <button type="button" className="cancel" onClick={() => filterPayments(-1)}>Show Previous Week</button>
-                <button type="button" className="cancel" onClick={showAllPayments}>Show All Data</button>
-            </div> */}
 
         </div>
     );

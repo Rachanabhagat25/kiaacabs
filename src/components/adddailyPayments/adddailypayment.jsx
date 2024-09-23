@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import "../../App.css";
 import toast from 'react-hot-toast';
+import Spinner from '../../Spinner';
 
 const AddDailyPayment = () => {
     const initialPayment = {
@@ -26,6 +27,7 @@ const AddDailyPayment = () => {
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
     const [existingDates, setExistingDates] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const inputHandler = (e) => {
         const { name, value } = e.target;
@@ -87,10 +89,10 @@ const AddDailyPayment = () => {
             description: payment.description || "",
             percentage: payment.percentage || 0,
         };
-
+        setLoading(true);
         try {
             console.log("Data to be saved:", formData);
-            const response = await axios.post("http://localhost:8000/api/dailyPayments/create", formData);
+            const response = await axios.post("https://cabtest.onrender.com/api/dailyPayments/create", formData);
 
             console.log("Response received:", response);
 
@@ -102,6 +104,9 @@ const AddDailyPayment = () => {
             console.error('There was an error creating the daily payment:', error);
             toast.error('Failed to create daily payment. Please try again later.', { position: "top-right" });
         }
+        finally {
+            setLoading(false); // Hide spinner after fetching
+        }
     };
 
     const [users, setUsers] = useState([]);
@@ -109,24 +114,31 @@ const AddDailyPayment = () => {
 
     useEffect(() => {
         const fetchUsers = async () => {
+            setLoading(true);
             try {
-                const response = await axios.get("http://localhost:8000/api/user/getAllUser");
+                const response = await axios.get("https://cabtest.onrender.com/api/user/getAllUser");
                 setUsers(response.data);
             } catch (error) {
                 console.error("Error fetching users:", error);
             }
+            finally {
+                setLoading(false); // Hide spinner after fetching
+            }
         };
         const fetchCars = async () => {
+            setLoading(true);
             try {
-                const response = await axios.get("http://localhost:8000/api/car/getAllCars");
+                const response = await axios.get("https://cabtest.onrender.com/api/car/getAllCars");
                 setCars(response.data);
             } catch (error) {
                 console.error("Error fetching cars:", error);
+            } finally {
+                setLoading(false); // Hide spinner after fetching
             }
         };
         const fetchExistingPayments = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/api/dailyPayments/getAllPayments");// Adjust this API endpoint accordingly
+                const response = await axios.get("https://cabtest.onrender.com/api/dailyPayments/getAllPayments");// Adjust this API endpoint accordingly
                 const dates = response.data.map(payment => payment.date.split('T')[0]);
                 setExistingDates(dates);
             } catch (error) {
@@ -142,223 +154,228 @@ const AddDailyPayment = () => {
     return (
         <div className='addUser'>
             <h3 style={{ textAlign: 'center' }}>Add New Daily Payment</h3>
-            <form className='addUserForm' onSubmit={submitForm}>
-                <table>
-                    <tr>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='date'>Date</label>
-                                <input
-                                    type='date'
-                                    id="date"
-                                    name="date"
-                                    value={payment.date}
-                                    onChange={inputHandler}
-                                    autoComplete='off'
-                                />
-                            </div>
-                        </td>
-                        <td>
-                            <div className='inputGroup'>
+            {/* Show the spinner while loading */}
+            {loading ? (
+                <Spinner loading={loading} />
+            ) : (
+                <form className='addUserForm' onSubmit={submitForm}>
+                    <table>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='date'>Date</label>
+                                    <input
+                                        type='date'
+                                        id="date"
+                                        name="date"
+                                        value={payment.date}
+                                        onChange={inputHandler}
+                                        autoComplete='off'
+                                    />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
 
-                                <label htmlFor='user'>User</label>
-                                <select
-                                    id="user"
-                                    name="user"
-                                    value={payment.user}
-                                    onChange={inputHandler}
-                                >
-                                    <option value="">Select User</option>
-                                    {users.map((user) => (
-                                        <option key={user._id} value={user.name}>
-                                            {user.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {/* {errors.user && <p style={{ color: 'red' }}>{errors.user}</p>} */}
-                            </div>
-                        </td>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='carAssign'>Car Assign</label>
-                                <select
-                                    id="carAssign"
-                                    name="carAssign"
-                                    value={payment.carAssign}
-                                    onChange={inputHandler}
-                                >
-                                    <option value="">Select Car</option>
-                                    {cars.map((car) => (
-                                        <option key={car._id} value={car.carNumber}>
-                                            {car.carNumber}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='totalEarning'>Total Earning</label>
-                                <input
-                                    type='number'
-                                    id="totalEarning"
-                                    name="totalEarning"
-                                    value={payment.totalEarning}
-                                    onChange={inputHandler}
-                                    required
-                                    autoComplete='off'
-                                    placeholder='Enter Total Earning'
-                                />
-                            </div>
-                        </td>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='totalcash'>Total Cash</label>
-                                <input
-                                    type='number'
-                                    id="totalcash"
-                                    name="totalcash"
-                                    value={payment.totalcash}
-                                    onChange={inputHandler}
-                                    placeholder='Enter Total cash '
-                                />
-                            </div>
-                        </td>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='CNG'>CNG</label>
-                                <input
-                                    type='number'
-                                    id="CNG"
-                                    name="CNG"
-                                    value={payment.CNG}
-                                    onChange={inputHandler}
-                                    placeholder='Enter CNG'
-                                />
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='tollTax'>Toll Tax</label>
-                                <input
-                                    type='number'
-                                    id="tollTax"
-                                    name="tollTax"
-                                    value={payment.tollTax}
-                                    onChange={inputHandler}
-                                    placeholder='Enter Toll Tax'
-                                />
-                            </div>
-                        </td>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='percentage'>Percentage</label>
-                                <select
-                                    id="percentage"
-                                    name="percentage"
-                                    value={payment.percentage}
-                                    onChange={inputHandler}
-                                >
-                                    <option value="">Select Percentage</option>
-                                    <option value="30">30%</option>
-                                    <option value="35">35%</option>
-                                    <option value="40">40%</option>
-                                    <option value="45">45%</option>
-                                    <option value="50">50%</option>
-                                </select>
-                            </div>
-                        </td>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='payment'>Payment</label>
-                                <input
-                                    type='number'
-                                    id="payment"
-                                    name="payment"
-                                    value={payment.payment}
-                                    readOnly
-                                    onChange={inputHandler}
-                                    placeholder='payment calculated here'
-                                />
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='cashCollected'>Cash Collected</label>
-                                <input
-                                    type='number'
-                                    id="cashCollected"
-                                    name="cashCollected"
-                                    value={payment.cashCollected}
-                                    readOnly
-                                    onChange={inputHandler}
-                                    placeholder='cash Collected calculated here'
-                                />
-                            </div>
-                        </td>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='benefit'>Benefit</label>
-                                <input
-                                    type='number'
-                                    id="benefit"
-                                    name="benefit"
-                                    value={payment.benefit}
-                                    readOnly
-                                    onChange={inputHandler}
-                                    placeholder='benefit calculated here'
-                                />
-                            </div>
-                        </td>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='trips'>Trips</label>
-                                <input
-                                    type='number'
-                                    id="trips"
-                                    name="trips"
-                                    value={payment.trips}
-                                    onChange={inputHandler}
-                                    placeholder='Enter Trips'
-                                />
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div className='inputGroup'>
-                                <label htmlFor='description'>Description</label>
-                                <input
-                                    type='textarea'
-                                    id="description"
-                                    name="description"
-                                    value={payment.description}
-                                    onChange={inputHandler}
-                                    placeholder='Enter Description'
-                                />
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div className='inputGroup'>
-                                <button type="submit" className="submit">Add Payment</button>
-                            </div>
-                        </td>
-                        <td>
-                            <div className='inputGroup'>
-                                <button onClick={onClickCancel}>Cancel</button>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </form>
+                                    <label htmlFor='user'>User</label>
+                                    <select
+                                        id="user"
+                                        name="user"
+                                        value={payment.user}
+                                        onChange={inputHandler}
+                                    >
+                                        <option value="">Select User</option>
+                                        {users.map((user) => (
+                                            <option key={user._id} value={user.name}>
+                                                {user.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {/* {errors.user && <p style={{ color: 'red' }}>{errors.user}</p>} */}
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='carAssign'>Car Assign</label>
+                                    <select
+                                        id="carAssign"
+                                        name="carAssign"
+                                        value={payment.carAssign}
+                                        onChange={inputHandler}
+                                    >
+                                        <option value="">Select Car</option>
+                                        {cars.map((car) => (
+                                            <option key={car._id} value={car.carNumber}>
+                                                {car.carNumber}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='totalEarning'>Total Earning</label>
+                                    <input
+                                        type='number'
+                                        id="totalEarning"
+                                        name="totalEarning"
+                                        value={payment.totalEarning}
+                                        onChange={inputHandler}
+                                        required
+                                        autoComplete='off'
+                                        placeholder='Enter Total Earning'
+                                    />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='totalcash'>Total Cash</label>
+                                    <input
+                                        type='number'
+                                        id="totalcash"
+                                        name="totalcash"
+                                        value={payment.totalcash}
+                                        onChange={inputHandler}
+                                        placeholder='Enter Total cash '
+                                    />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='CNG'>CNG</label>
+                                    <input
+                                        type='number'
+                                        id="CNG"
+                                        name="CNG"
+                                        value={payment.CNG}
+                                        onChange={inputHandler}
+                                        placeholder='Enter CNG'
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='tollTax'>Toll Tax</label>
+                                    <input
+                                        type='number'
+                                        id="tollTax"
+                                        name="tollTax"
+                                        value={payment.tollTax}
+                                        onChange={inputHandler}
+                                        placeholder='Enter Toll Tax'
+                                    />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='percentage'>Percentage</label>
+                                    <select
+                                        id="percentage"
+                                        name="percentage"
+                                        value={payment.percentage}
+                                        onChange={inputHandler}
+                                    >
+                                        <option value="">Select Percentage</option>
+                                        <option value="30">30%</option>
+                                        <option value="35">35%</option>
+                                        <option value="40">40%</option>
+                                        <option value="45">45%</option>
+                                        <option value="50">50%</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='payment'>Payment</label>
+                                    <input
+                                        type='number'
+                                        id="payment"
+                                        name="payment"
+                                        value={payment.payment}
+                                        readOnly
+                                        onChange={inputHandler}
+                                        placeholder='payment calculated here'
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='cashCollected'>Cash Collected</label>
+                                    <input
+                                        type='number'
+                                        id="cashCollected"
+                                        name="cashCollected"
+                                        value={payment.cashCollected}
+                                        readOnly
+                                        onChange={inputHandler}
+                                        placeholder='cash Collected calculated here'
+                                    />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='benefit'>Benefit</label>
+                                    <input
+                                        type='number'
+                                        id="benefit"
+                                        name="benefit"
+                                        value={payment.benefit}
+                                        readOnly
+                                        onChange={inputHandler}
+                                        placeholder='benefit calculated here'
+                                    />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='trips'>Trips</label>
+                                    <input
+                                        type='number'
+                                        id="trips"
+                                        name="trips"
+                                        value={payment.trips}
+                                        onChange={inputHandler}
+                                        placeholder='Enter Trips'
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='description'>Description</label>
+                                    <input
+                                        type='textarea'
+                                        id="description"
+                                        name="description"
+                                        value={payment.description}
+                                        onChange={inputHandler}
+                                        placeholder='Enter Description'
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <button type="submit" className="submit">Add Payment</button>
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <button onClick={onClickCancel}>Cancel</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            )}
         </div>
     );
 };
