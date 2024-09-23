@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/kiaacabs/static/css/main.bbb8d85e.css",
+    "main.js": "/kiaacabs/static/js/main.917f28cb.js",
+    "index.html": "/kiaacabs/index.html",
+    "main.bbb8d85e.css.map": "/kiaacabs/static/css/main.bbb8d85e.css.map",
+    "main.917f28cb.js.map": "/kiaacabs/static/js/main.917f28cb.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bbb8d85e.css",
+    "static/js/main.917f28cb.js"
+  ]
+}
