@@ -27,7 +27,7 @@ function App() {
           <img src="/images.png" alt="GoRides Logo" className="logo" /> */}
           {/* <div>GoRides</div> */}
         </div>
-        <Routes basename='/kiaacabs'>
+        <Routes>
           <Route path="/" element={<User />} />
           <Route path="/add" element={<Add />} />
           <Route path="/edit/:id" element={<Edit />} />
