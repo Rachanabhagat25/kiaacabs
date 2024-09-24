@@ -18,6 +18,7 @@ const User = () => {
                 setUsers(response.data);
             } catch (error) {
                 console.error("Error fetching user data:", error);
+                toast.error("Error fetching user data. Please try again.", { position: "top-right" });
             } finally {
                 setLoading(false); // Hide spinner after data retrieval
             }
@@ -51,8 +52,8 @@ const User = () => {
                 setSelectedUsers(new Set());
             } catch (error) {
                 console.error("Error deleting users:", error);
-            }
-            finally {
+                toast.error("Error deleting users. Please try again.", { position: "top-right" });
+            } finally {
                 setLoading(false); // Stop spinner when operation completes
             }
         }
@@ -80,7 +81,7 @@ const User = () => {
             {/* Show the spinner while loading */}
             {loading ? (
                 <Spinner loading={loading} /> 
-            ) : (
+            ) : user.length > 0 ? (
                 <div className="tableContainer">
                     <table border={1} cellPadding={10} cellSpacing={0}>
                         <thead style={{textAlign:'center'}}>
@@ -119,6 +120,8 @@ const User = () => {
                         </tbody>
                     </table>
                 </div>
+            ) : (
+                <p>No users found or failed to fetch users.</p>
             )}
             
             <br />
