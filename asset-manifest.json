@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/kiaacabs/static/css/main.bbb8d85e.css",
-    "main.js": "/kiaacabs/static/js/main.4a6688bd.js",
+    "main.js": "/kiaacabs/static/js/main.d69da668.js",
     "index.html": "/kiaacabs/index.html",
     "main.bbb8d85e.css.map": "/kiaacabs/static/css/main.bbb8d85e.css.map",
-    "main.4a6688bd.js.map": "/kiaacabs/static/js/main.4a6688bd.js.map"
+    "main.d69da668.js.map": "/kiaacabs/static/js/main.d69da668.js.map"
   },
   "entrypoints": [
     "static/css/main.bbb8d85e.css",
-    "static/js/main.4a6688bd.js"
+    "static/js/main.d69da668.js"
   ]
 }
