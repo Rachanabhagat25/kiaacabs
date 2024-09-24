@@ -251,13 +251,13 @@ const DailyPayments = () => {
                     <tbody>
                         <tr>
                             <td>Total</td>
-                            <td>{totals.totalEarning}</td>
-                            <td>{totals.totalCash}</td>
+                            <td>{totals.totalEarning.toFixed(2)}</td>
+                            <td>{totals.totalCash.toFixed(2)}</td>
                             <td>{totals.CNG}</td>
                             <td>{totals.tollTax}</td>
-                            <td>{totals.payment}</td>
-                            <td>{totals.cashCollected}</td>
-                            <td>{totals.benefit}</td>
+                            <td>{totals.payment.toFixed(2)}</td>
+                            <td>{totals.cashCollected.toFixed(2)}</td>
+                            <td>{totals.benefit.toFixed(2)}</td>
                             <td>{totals.trips}</td>
                         </tr>
                     </tbody>
