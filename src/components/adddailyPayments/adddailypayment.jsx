@@ -26,8 +26,7 @@ const AddDailyPayment = () => {
     const [payment, setPayment] = useState(initialPayment);
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
-    //const [existingDates, setExistingDates] = useState([]);
-     const [existingPayments, setExistingPayments] = useState([]);
+    const [existingPayments, setExistingPayments] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const inputHandler = (e) => {
@@ -52,11 +51,9 @@ const AddDailyPayment = () => {
                 newPayment.cashCollected = (newPayment.totalcash - newPayment.payment - newPayment.CNG - newPayment.tollTax).toFixed(2);
             }
 
-            //const isDateExisting = existingDates.includes(payment.date);
-             const isExistingPayment = existingPayments.some(payment => 
+            const isExistingPayment = existingPayments.some(payment => 
                 payment.date === newPayment.date && payment.carAssign === newPayment.carAssign
             );
-
             if (newPayment.payment && newPayment.CNG) {
                 let benefit = (newPayment.totalEarning - newPayment.payment - newPayment.CNG).toFixed(2);
                 if (!isExistingPayment) {
@@ -141,8 +138,7 @@ const AddDailyPayment = () => {
             }
         };
         const fetchExistingPayments = async () => {
-              setLoading(true);
-           try {
+            try {
                 const response = await axios.get("https://cabtest.onrender.com/api/dailyPayments/getAllPayments");
                 const payments = response.data;
                 
@@ -156,9 +152,6 @@ const AddDailyPayment = () => {
                
             } catch (error) {
                 console.error("Error fetching existing payments:", error);
-            }
-             finally {
-                setLoading(false); // Hide spinner after fetching
             }
         };
 
