@@ -4,12 +4,12 @@ import "../../App.css";
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Spinner from '../../Spinner.js'; // Import the Spinner component
-
+ 
 const User = () => {
     const [user, setUsers] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState(new Set());
     const [loading, setLoading] = useState(true); // Loading state
-
+ 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true); // Show spinner
@@ -25,7 +25,7 @@ const User = () => {
         };
         fetchData();
     }, []);
-
+ 
     const toggleUserSelection = (userId) => {
         setSelectedUsers((prev) => {
             const newSelection = new Set(prev);
@@ -37,11 +37,11 @@ const User = () => {
             return newSelection;
         });
     };
-
+ 
     const deleteUsers = async () => {
         const confirmed = window.confirm("Are you sure you want to delete selected users?");
         if (confirmed && selectedUsers.size > 0) {
-            setLoading(true); 
+            setLoading(true);
             try {
                 const deleteRequests = Array.from(selectedUsers).map(userId =>
                     axios.delete(`https://cabtest.onrender.com/api/user/delete/${userId}`)
@@ -58,14 +58,14 @@ const User = () => {
             }
         }
     };
-
+ 
     const editUsers = () => {
         if (selectedUsers.size === 1) {
             const userId = Array.from(selectedUsers)[0];
             window.location.href = `/edit/${userId}`;
         }
     };
-
+ 
     return (
         <div className='driverdata'>
             <div>
@@ -77,10 +77,10 @@ const User = () => {
                     <button onClick={deleteUsers} disabled={selectedUsers.size === 0}>Delete Selected</button>
                 </div>
             </div>
-
+ 
             {/* Show the spinner while loading */}
             {loading ? (
-                <Spinner loading={loading} /> 
+                <Spinner loading={loading} />
             ) : user.length > 0 ? (
                 <div className="tableContainer">
                     <table border={1} cellPadding={10} cellSpacing={0}>
@@ -123,12 +123,12 @@ const User = () => {
             ) : (
                 <p>No users found or failed to fetch users.</p>
             )}
-            
+           
             <br />
             <br />
             <Link to={"/add"} className='addButton'>Add User</Link>
         </div>
     );
 };
-
+ 
 export default User;
