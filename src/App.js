@@ -22,12 +22,7 @@ function App() {
     <div className="App">
       <Router>
         <NavBar />
-        <div className="header"> 
-          {/* <img src="/logo.jpg" alt="GoRides Logo" className="logo" />
-          <img src="/images.png" alt="GoRides Logo" className="logo" /> */}
-          {/* <div>GoRides</div> */}
-        </div>
-        <Routes>
+        <Routes  basename='/kiaacabs'>
           <Route path="/" element={<User />} />
           <Route path="/add" element={<Add />} />
           <Route path="/edit/:id" element={<Edit />} />

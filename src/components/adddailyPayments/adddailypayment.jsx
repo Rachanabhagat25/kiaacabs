@@ -29,47 +29,52 @@ const AddDailyPayment = () => {
     const [existingPayments, setExistingPayments] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const inputHandler = (e) => {
+    const inputHandler = async (e) => {
         const { name, value } = e.target;
-        setPayment(prevState => {
-            const newPayment = { ...prevState, [name]: value };
-
-
-            // Calculate payment when percentage or totalEarning changes
-            if (name === 'percentage' || name === 'totalEarning') {
-                const percentageValue = name === 'percentage' ? value : newPayment.percentage;
-                const earningValue = name === 'totalEarning' ? value : newPayment.totalEarning;
-
-                if (percentageValue && earningValue) {
-                    const paymentValue = (earningValue * percentageValue) / 100;
-                    newPayment.payment = paymentValue.toFixed(2);
-                }
+    
+        // Calculate values first
+        const updatedPayment = { ...payment, [name]: value };
+    
+        // Calculate payment when percentage or totalEarning changes
+        if (name === 'percentage' || name === 'totalEarning') {
+            const percentageValue = name === 'percentage' ? value : updatedPayment.percentage;
+            const earningValue = name === 'totalEarning' ? value : updatedPayment.totalEarning;
+    
+            if (percentageValue && earningValue) {
+                updatedPayment.payment = ((earningValue * percentageValue) / 100).toFixed(2);
             }
-
-            // Calculate cashCollected and benefit
-            if (newPayment.payment && newPayment.CNG && newPayment.tollTax && newPayment.totalcash) {
-                newPayment.cashCollected = (newPayment.totalcash - newPayment.payment - newPayment.CNG - newPayment.tollTax).toFixed(2);
+        }
+    
+        // Calculate cashCollected and benefit
+        if (updatedPayment.payment && updatedPayment.CNG && updatedPayment.tollTax && updatedPayment.totalcash) {
+            updatedPayment.cashCollected = (updatedPayment.totalcash - updatedPayment.payment - updatedPayment.CNG - updatedPayment.tollTax).toFixed(2);
+        }
+    
+        // Check for existing payment (This is asynchronous, move it outside of the state update)
+        const isExistingPayment = await existingPayments.some(payment =>
+            payment.date === updatedPayment.date && payment.carAssign === updatedPayment.carAssign
+        );
+    
+        if (updatedPayment.payment && updatedPayment.CNG) {
+            let benefit = (updatedPayment.totalEarning - updatedPayment.payment - updatedPayment.CNG).toFixed(2);
+            if (!isExistingPayment) {
+                benefit = (parseFloat(benefit) - 950).toFixed(2);
             }
-
-            const isExistingPayment = existingPayments.some(payment => 
-                payment.date === newPayment.date && payment.carAssign === newPayment.carAssign
-            );
-            if (newPayment.payment && newPayment.CNG) {
-                let benefit = (newPayment.totalEarning - newPayment.payment - newPayment.CNG).toFixed(2);
-                if (!isExistingPayment) {
-                    benefit = (parseFloat(benefit) - 950).toFixed(2);
-                }
-                newPayment.benefit = benefit;
-            }
-
-            return newPayment;
-        });
-
+            updatedPayment.benefit = benefit;
+        }
+    
+        // Finally, update the state
+        setPayment(prevState => ({
+            ...prevState,
+            ...updatedPayment,
+        }));
+    
+        // Handle errors
         if (errors[name]) {
             setErrors({ ...errors, [name]: "" });
         }
     };
-
+    
 
 
     const onClickCancel = () => {
@@ -141,15 +146,15 @@ const AddDailyPayment = () => {
             try {
                 const response = await axios.get("https://cabtest.onrender.com/api/dailyPayments/getAllPayments");
                 const payments = response.data;
-                
-             
+
+
                 const paymentDetails = payments.map(payment => ({
                     date: payment.date.split('T')[0],
-                    carAssign: payment.carAssign 
+                    carAssign: payment.carAssign
                 }));
-                
+
                 setExistingPayments(paymentDetails);
-               
+
             } catch (error) {
                 console.error("Error fetching existing payments:", error);
             }
