@@ -4,6 +4,7 @@ import "../../App.css";
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Spinner from '../../Spinner'; // Import the Spinner component
+import { useNavigate } from 'react-router-dom';
 
 const Car = () => {
     const [cars, setCars] = useState([]);
@@ -36,11 +37,11 @@ const Car = () => {
             return newSelection;
         });
     };
-
+    const navigate = useNavigate();
     const editCar = () => {
         if (selectedCars.size === 1) {
             const carId = Array.from(selectedCars)[0];
-            window.location.href = `/editCar/${carId}`;
+            navigate(`/editCar/${carId}`);
         }
     };
 

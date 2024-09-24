@@ -4,6 +4,8 @@ import "../../App.css";
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Spinner from '../../Spinner';
+import { useNavigate } from 'react-router-dom';
+
 
 const DailyPayments = () => {
     const [payments, setPayments] = useState([]);
@@ -108,16 +110,18 @@ const DailyPayments = () => {
         });
     };
     //<Link to={"/editCar/" + carData._id}><i className="fa-solid fa-pen-to-square"></i> </Link>
+    const navigate = useNavigate();
+
     const editPayment = () => {
         if (selectedPayments.size === 1) {
             const paymentId = Array.from(selectedPayments)[0];
-            // Navigate to the edit page (you might want to use history.push or navigate)
-            window.location.href = `/editDailyPayment/${paymentId}`;
-        }
-        if (selectedPayments.size === 0) {
-            alert("Select at least one record to edit")
+            // Use navigate to redirect without page refresh
+            navigate(`/editDailyPayment/${paymentId}`);
+        } else if (selectedPayments.size === 0) {
+            alert("Select at least one record to edit");
         }
     };
+    
     const deletePayment = async () => {
         if (selectedPayments.size > 0) {
             const confirmed = window.confirm("Are you sure you want to delete selected Payment?");
