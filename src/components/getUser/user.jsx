@@ -4,7 +4,8 @@ import "../../App.css";
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Spinner from '../../Spinner.js'; // Import the Spinner component
- 
+import { useNavigate } from 'react-router-dom';
+
 const User = () => {
     const [user, setUsers] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState(new Set());
@@ -58,11 +59,14 @@ const User = () => {
             }
         }
     };
- 
+    const navigate = useNavigate();
     const editUsers = () => {
         if (selectedUsers.size === 1) {
             const userId = Array.from(selectedUsers)[0];
-            window.location.href = `/edit/${userId}`;
+            navigate(`/edit/${userId}`);
+        }
+        else{
+            alert("select on record to edit !..");
         }
     };
  

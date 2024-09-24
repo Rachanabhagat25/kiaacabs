@@ -22,7 +22,6 @@ function App() {
     <div className="App">
       <Router>
         <NavBar />
-
         <Routes  basename='/kiaacabs'>
           <Route path="/" element={<User />} />
           <Route path="/add" element={<Add />} />
