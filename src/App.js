@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes } from 'react-router-dom';  // Use HashRouter
 import NavBar from './NavBar';
 
 import User from './components/getUser/user';
@@ -10,7 +10,6 @@ import Car from './components/getCar/car';
 import AddCar from './components/addCar/addcar';
 import EditCar from './components/updateCar/editcar';
 
-
 import DailyPayments from './components/getdailyPayments/dailypayment';
 import AddDailyPayment from './components/adddailyPayments/adddailypayment';
 import EditDailyPayment from './components/updatedailyPayments/editdailypayment';
@@ -20,9 +19,9 @@ import FilterDailyPayment from './components/filterdata/filterdailypayment';
 function App() {
   return (
     <div className="App">
-      <Router>
+      <Router basename='/kiaacabs'>  {/* You can keep basename if app is in a subfolder */}
         <NavBar />
-        <Routes  basename='/kiaacabs'>
+        <Routes>
           <Route path="/" element={<User />} />
           <Route path="/add" element={<Add />} />
           <Route path="/edit/:id" element={<Edit />} />
@@ -31,7 +30,7 @@ function App() {
           <Route path="/addcar" element={<AddCar />} />
           <Route path="/editcar/:id" element={<EditCar />} />
           
-           <Route path="/dailyPayments" element={<DailyPayments />} />
+          <Route path="/dailyPayments" element={<DailyPayments />} />
           <Route path="/addDailyPayment" element={<AddDailyPayment />} />
           <Route path="/editDailyPayment/:id" element={<EditDailyPayment />} />
 
