@@ -36,7 +36,7 @@ const DailyPayments = () => {
 
     const getStartOfWeek = (date) => {
         const day = date.getDay();
-        const diff = date.getDate() - day + (day === 0 ? -6 : 1); // When it's Sunday, subtract 6 days, else start on Monday
+        const diff = date.getDate() - day + (day === 0 ? -7 : 0); // When it's Sunday, subtract 6 days, else start on Monday
         return new Date(date.setDate(diff));
     };
     const formatDate = (dateString) => {
