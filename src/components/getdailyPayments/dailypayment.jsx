@@ -12,7 +12,12 @@ const DailyPayments = () => {
     const [loading, setLoading] = useState(true);
     const [filteredPayments, setFilteredPayments] = useState([]);
     const [selectedPayments, setSelectedPayments] = useState(new Set());
-    const [heading, setHeading] = useState("--- Daily Payments ---"); 
+    const [heading, setHeading] = useState("--- Daily Payments ---");
+
+    const [numberOfCars, setNumberOfCars] = useState(0);
+    const [numberOfDays, setNumberOfDays] = useState(0);
+    const [rent, setRent] = useState(0);
+    const [calculatedBenefit, setCalculatedBenefit] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,35 +39,44 @@ const DailyPayments = () => {
         fetchData();
     }, []);
 
-    const getStartOfWeek = (date) => {
-        const day = date.getDay();
-        const diff = date.getDate() - day + (day === 0 ? -6 : 1); // When it's Sunday, subtract 6 days, else start on Monday
-        return new Date(date.setDate(diff));
-    };
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
         return new Date(dateString).toLocaleDateString('en-GB', options);
     };
 
+    const resetTimeToMidnight = (date) => {
+        return new Date(date.setHours(0, 0, 0, 0));
+    };
+
+    const getStartOfWeek = (date) => {
+        const currentDate = new Date(date);
+        const day = currentDate.getDay();
+        const diff = currentDate.getDate() - day + (day === 0 ? -6 : 1); // Adjust when Sunday (day === 0)
+        return new Date(currentDate.setDate(diff));
+    };
+
+    const getEndOfWeek = (startOfWeek) => {
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(endOfWeek.getDate() + 6); // End of week is 6 days after start
+        return endOfWeek;
+    };
+
     const filterPayments = (weekOffset) => {
         const today = new Date();
-        const startOfWeek = getStartOfWeek(new Date(today));
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 7); // End of the week is 6 days later
+        let startOfWeek = resetTimeToMidnight(getStartOfWeek(today));  // Normalize startOfWeek
+        startOfWeek.setDate(startOfWeek.getDate() + weekOffset * 7);   // Adjust for current or previous weeks
 
-        // Adjust for previous week
-        startOfWeek.setDate(startOfWeek.getDate() + weekOffset * 7);
-        endOfWeek.setDate(endOfWeek.getDate() + weekOffset * 7);
+        const endOfWeek = resetTimeToMidnight(getEndOfWeek(startOfWeek)); // Normalize endOfWeek
 
         const filtered = payments.filter(payment => {
-            const paymentDate = new Date(payment.date);
+            const paymentDate = resetTimeToMidnight(new Date(payment.date)); // Normalize paymentDate
             return paymentDate >= startOfWeek && paymentDate <= endOfWeek;
         });
 
         setFilteredPayments(filtered);
 
-          // Update the heading based on the weekOffset value
-          if (weekOffset === 0) {
+        // Update heading based on weekOffset
+        if (weekOffset === 0) {
             setHeading("--- Current Week Payments ---");
         } else if (weekOffset === -1) {
             setHeading("--- Previous Week Payments ---");
@@ -120,8 +134,11 @@ const DailyPayments = () => {
         } else if (selectedPayments.size === 0) {
             alert("Select at least one record to edit");
         }
+        else if (selectedPayments.size > 1) {
+            alert("Select only one record to edit");
+        }
     };
-    
+
     const deletePayment = async () => {
         if (selectedPayments.size > 0) {
             const confirmed = window.confirm("Are you sure you want to delete selected Payment?");
@@ -154,6 +171,11 @@ const DailyPayments = () => {
         }
     };
 
+    const handleBenefitCalculation = () => {
+        const benefit = (totals.totalEarning - totals.CNG - totals.payment - (numberOfCars * numberOfDays * rent)).toFixed(2);
+        setCalculatedBenefit(benefit);
+    };
+
     return (
         <div className='userTable'>
             <div className="loading-bar-container">
@@ -161,7 +183,7 @@ const DailyPayments = () => {
             </div>
             <div>
                 <h1 style={{ textAlign: 'center', fontWeight: 'bold', textShadow: '1px 1px 2px rgb(63, 7, 78)' }}>
-                {heading}
+                    {heading}
                 </h1>
                 <br></br>
                 <div className="actionButtons">
@@ -172,6 +194,7 @@ const DailyPayments = () => {
                     <button type="button" className="cancel" onClick={() => filterPayments(-1)}>Show Previous Week</button>
                     <button type="button" className="cancel" onClick={showAllPayments}>Show All Data</button>
                 </div>
+
 
             </div>
             {loading ? (
@@ -184,7 +207,7 @@ const DailyPayments = () => {
                                 <th>Select</th>
                                 <th>SL/No</th>
                                 <th>Date</th>
-                                <th>User</th>
+                                <th>User/Driver</th>
                                 <th>Car Assign</th>
                                 <th>Total Earning</th>
                                 <th>Total Cash</th>
@@ -192,7 +215,7 @@ const DailyPayments = () => {
                                 <th>Toll Tax</th>
                                 <th>Payment</th>
                                 <th>Cash Collected</th>
-                                <th>Benefit</th>
+                                <th> Avrage Benefit</th>
                                 <th>Trips</th>
                                 <th>Percentage</th>
                                 <th>Description</th>
@@ -225,6 +248,7 @@ const DailyPayments = () => {
                                             <td>{payment.trips}</td>
                                             <td>{payment.percentage}</td>
                                             <td>{payment.description}</td>
+
                                         </tr>
                                     )
                                 })
@@ -263,8 +287,38 @@ const DailyPayments = () => {
                     </tbody>
                 </table>
             </div>
-            <br></br>
+            <div className="inputs-container">
+                <h2>Benefit Calculation</h2>
+                <br></br>
+                <label>
+                    Number of Cars:
+                    <input
+                        type="number"
+                        value={numberOfCars}
+                        onChange={(e) => setNumberOfCars(Number(e.target.value))}
+                    />
+                </label>
+                <label>
+                    Number of Days:
+                    <input
+                        type="number"
+                        value={numberOfDays}
+                        onChange={(e) => setNumberOfDays(Number(e.target.value))}
+                    />
+                </label>
+                <label>
+                    Rent per Car:
+                    <input
+                        type="number"
+                        value={rent}
+                        onChange={(e) => setRent(Number(e.target.value))}
+                    />
+                </label>
 
+                <button onClick={handleBenefitCalculation}>Calculate Benefit</button>
+                <br></br>
+                <h3>Calculated Benefit: {calculatedBenefit}</h3>
+            </div>
         </div>
     );
 };

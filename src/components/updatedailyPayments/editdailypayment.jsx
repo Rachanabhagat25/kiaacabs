@@ -18,7 +18,7 @@ const EditDailyPayment = () => {
         benefit: "",
         trips: "",
         description: "",
-        percentage: "", // Added percentage field
+        percentage: "",
         isDelete: false,
         isEdit: false
     };
@@ -45,13 +45,11 @@ const EditDailyPayment = () => {
                 }
             }
 
-            // Calculate cashCollected and benefit
+            // Calculate cashCollected
             if (newPayment.payment && newPayment.CNG && newPayment.tollTax && newPayment.totalcash) {
                 newPayment.cashCollected = (newPayment.totalcash - newPayment.payment - newPayment.CNG - newPayment.tollTax).toFixed(2);
             }
-            if (newPayment.payment && newPayment.CNG) {
-                newPayment.benefit = (newPayment.totalEarning - newPayment.payment - newPayment.CNG).toFixed(2);
-            }
+           
 
             return newPayment;
         });
@@ -118,106 +116,147 @@ const EditDailyPayment = () => {
 
     return (
         <div className='addUser'>
-            <h3 style={{ textAlign: 'center' }}>Update Daily Payment</h3>
-            {/* Show the spinner while loading */}
+            <h1 style={{ textAlign: 'center', fontWeight: 'bold', textShadow: '1px 1px 2px rgb(63, 7, 78)' }}>--Update Daily Payment--</h1>
             {loading ? (
                 <Spinner loading={loading} />
             ) : (
                 <form className='addUserForm' onSubmit={updateForm}>
-                    <div className='inputGroup'>
-                        <label htmlFor='date'>Date</label>
-                        <input type='date' value={payment.date} onChange={inputChangeHandler} id="date" name="date" autoComplete='off' />
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='user'>User</label>
-                        <select
-                            id="user"
-                            name="user"
-                            value={payment.user}
-                            onChange={inputChangeHandler}
-                        >
-                            <option value="">Select User</option>
-                            {users.map((user) => (
-                                <option key={user._id} value={user.name}>
-                                    {user.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='carAssign'>Car Assign</label>
-                        <select
-                            id="carAssign"
-                            name="carAssign"
-                            value={payment.carAssign}
-                            onChange={inputChangeHandler}
-                        >
-                            <option value="">Select Car</option>
-                            {cars.map((car) => (
-                                <option key={car._id} value={car.carNumber}>
-                                    {car.carNumber}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='totalEarning'>Total Earning</label>
-                        <input type='number' value={payment.totalEarning} onChange={inputChangeHandler} id="totalEarning" name="totalEarning" autoComplete='off' placeholder='Enter Total Earning' />
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='totalcash'>Total Cash</label>
-                        <input type='number' value={payment.totalcash} onChange={inputChangeHandler} id="totalcash" name="totalcash" autoComplete='off' placeholder='Enter Total Cash' />
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='CNG'>CNG</label>
-                        <input type='number' value={payment.CNG} onChange={inputChangeHandler} id="CNG" name="CNG" autoComplete='off' placeholder='Enter CNG' />
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='tollTax'>Toll Tax</label>
-                        <input type='number' value={payment.tollTax} onChange={inputChangeHandler} id="tollTax" name="tollTax" autoComplete='off' placeholder='Enter Toll Tax' />
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='percentage'>Percentage</label>
-                        <select
-                            id="percentage"
-                            name="percentage"
-                            value={payment.percentage}
-                            onChange={inputChangeHandler}
-                        >
-                            <option value="">Select Percentage</option>
-                            <option value="30">30%</option>
-                            <option value="35">35%</option>
-                            <option value="40">40%</option>
-                            <option value="45">45%</option>
-                            <option value="50">50%</option>
-                        </select>
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='payment'>Payment</label>
-                        <input type='number' value={payment.payment} readOnly id="payment" name="payment" autoComplete='off' placeholder='Payment calculated here' />
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='cashCollected'>Cash Collected</label>
-                        <input type='number' value={payment.cashCollected} readOnly id="cashCollected" name="cashCollected" autoComplete='off' placeholder='Cash Collected calculated here' />
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='benefit'>Benefit</label>
-                        <input type='number' value={payment.benefit} readOnly id="benefit" name="benefit" autoComplete='off' placeholder='Benefit calculated here' />
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='trips'>Trips</label>
-                        <input type='number' value={payment.trips} onChange={inputChangeHandler} id="trips" name="trips" autoComplete='off' placeholder='Enter Trips' />
-                    </div>
-                    <div className='inputGroup'>
-                        <label htmlFor='description'>Description</label>
-                        <input type='text' value={payment.description} onChange={inputChangeHandler} id="description" name="description" autoComplete='off' placeholder='Enter Description' />
-                    </div>
-                    <div className='inputGroup'>
-                        <button className="submit">Update Payment</button>
-                    </div>
-                    <div className='inputGroup'>
-                        <button type="button" className="cancel" onClick={() => navigate("/dailypayments")}> Cancel </button>
-                    </div>
+                    <table>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='date'>Date</label>
+                                    <input type='date' value={payment.date} onChange={inputChangeHandler} id="date" name="date" autoComplete='off' />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='user'>User</label>
+                                    <select
+                                        id="user"
+                                        name="user"
+                                        value={payment.user}
+                                        onChange={inputChangeHandler}
+                                    >
+                                        <option value="">Select User</option>
+                                        {users.map((user) => (
+                                            <option key={user._id} value={user.name}>
+                                                {user.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='carAssign'>Car Assign</label>
+                                    <select
+                                        id="carAssign"
+                                        name="carAssign"
+                                        value={payment.carAssign}
+                                        onChange={inputChangeHandler}
+                                    >
+                                        <option value="">Select Car</option>
+                                        {cars.map((car) => (
+                                            <option key={car._id} value={car.carNumber}>
+                                                {car.carNumber}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='totalEarning'>Total Earning</label>
+                                    <input type='number' value={payment.totalEarning} onChange={inputChangeHandler} id="totalEarning" name="totalEarning" autoComplete='off' placeholder='Enter Total Earning' />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='totalcash'>Total Cash</label>
+                                    <input type='number' value={payment.totalcash} onChange={inputChangeHandler} id="totalcash" name="totalcash" autoComplete='off' placeholder='Enter Total Cash' />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='CNG'>CNG</label>
+                                    <input type='number' value={payment.CNG} onChange={inputChangeHandler} id="CNG" name="CNG" autoComplete='off' placeholder='Enter CNG' />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='tollTax'>Toll Tax</label>
+                                    <input type='number' value={payment.tollTax} onChange={inputChangeHandler} id="tollTax" name="tollTax" autoComplete='off' placeholder='Enter Toll Tax' />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='percentage'>Percentage</label>
+                                    <select
+                                        id="percentage"
+                                        name="percentage"
+                                        value={payment.percentage}
+                                        onChange={inputChangeHandler}
+                                    >
+                                        <option value="">Select Percentage</option>
+                                        <option value="30">30%</option>
+                                        <option value="35">35%</option>
+                                        <option value="40">40%</option>
+                                        <option value="45">45%</option>
+                                        <option value="50">50%</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='payment'>Payment</label>
+                                    <input type='number' value={payment.payment} readOnly id="payment" name="payment" autoComplete='off' placeholder='Payment calculated here' />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='cashCollected'>Cash Collected</label>
+                                    <input type='number' value={payment.cashCollected} readOnly id="cashCollected" name="cashCollected" autoComplete='off' placeholder='Cash Collected calculated here' />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='benefit'>Benefit</label>
+                                    <input type='number' value={payment.benefit} onChange={inputChangeHandler} id="benefit" name="benefit" autoComplete='off' placeholder='Benefit here' />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='trips'>Trips</label>
+                                    <input type='number' value={payment.trips} onChange={inputChangeHandler} id="trips" name="trips" autoComplete='off' placeholder='Enter Trips' />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div className='inputGroup'>
+                                    <label htmlFor='description'>Description</label>
+                                    <input type='text' value={payment.description} onChange={inputChangeHandler} id="description" name="description" autoComplete='off' placeholder='Enter Description' />
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <button className="submit">Update Payment</button>
+                                </div>
+                            </td>
+                            <td>
+                                <div className='inputGroup'>
+                                    <button type="button" className="cancel" onClick={() => navigate("/dailypayments")}> Cancel </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </form>)}
         </div>
     );

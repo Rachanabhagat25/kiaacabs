@@ -4,6 +4,7 @@ import axios from 'axios';
 import "../../App.css";
 import toast from 'react-hot-toast';
 import Spinner from '../../Spinner';
+import dayjs from 'dayjs';
 
 const AddDailyPayment = () => {
     const initialPayment = {
@@ -31,50 +32,61 @@ const AddDailyPayment = () => {
 
     const inputHandler = async (e) => {
         const { name, value } = e.target;
-    
+
         // Calculate values first
         const updatedPayment = { ...payment, [name]: value };
-    
+
         // Calculate payment when percentage or totalEarning changes
         if (name === 'percentage' || name === 'totalEarning') {
             const percentageValue = name === 'percentage' ? value : updatedPayment.percentage;
             const earningValue = name === 'totalEarning' ? value : updatedPayment.totalEarning;
-    
+
             if (percentageValue && earningValue) {
                 updatedPayment.payment = ((earningValue * percentageValue) / 100).toFixed(2);
             }
         }
-    
+
         // Calculate cashCollected and benefit
         if (updatedPayment.payment && updatedPayment.CNG && updatedPayment.tollTax && updatedPayment.totalcash) {
             updatedPayment.cashCollected = (updatedPayment.totalcash - updatedPayment.payment - updatedPayment.CNG - updatedPayment.tollTax).toFixed(2);
         }
-    
+
         // Check for existing payment (This is asynchronous, move it outside of the state update)
-        const isExistingPayment = await existingPayments.some(payment =>
-            payment.date === updatedPayment.date && payment.carAssign === updatedPayment.carAssign
-        );
-    
+        let isExistingPayment = false;
+        existingPayments.forEach(payment => {
+
+            const updatedDateFormatted = dayjs(updatedPayment.date).format('DD/MM/YYYY');
+
+            existingPayments.forEach(payment => {
+                // Compare formatted dates and trimmed carAssign
+                if (payment.date === updatedDateFormatted && payment.carAssign.trim() === updatedPayment.carAssign.trim()) {
+                    isExistingPayment = true;
+                }
+            });
+        });
+        
+
         if (updatedPayment.payment && updatedPayment.CNG) {
             let benefit = (updatedPayment.totalEarning - updatedPayment.payment - updatedPayment.CNG).toFixed(2);
+
             if (!isExistingPayment) {
+                // Subtracting 950 from benefit if it's a new payment
                 benefit = (parseFloat(benefit) - 950).toFixed(2);
             }
             updatedPayment.benefit = benefit;
         }
-    
         // Finally, update the state
         setPayment(prevState => ({
             ...prevState,
             ...updatedPayment,
         }));
-    
+
         // Handle errors
         if (errors[name]) {
             setErrors({ ...errors, [name]: "" });
         }
     };
-    
+
 
 
     const onClickCancel = () => {
@@ -147,10 +159,10 @@ const AddDailyPayment = () => {
                 const response = await axios.get("https://cabtest.onrender.com/api/dailyPayments/getAllPayments");
                 const payments = response.data;
 
-
                 const paymentDetails = payments.map(payment => ({
-                    date: payment.date.split('T')[0],
-                    carAssign: payment.carAssign
+                    // Format date as 'DD/MM/YYYY' for consistency
+                    date: dayjs(payment.date.split('T')[0]).format('DD/MM/YYYY'),
+                    carAssign: payment.carAssign.trim()
                 }));
 
                 setExistingPayments(paymentDetails);
@@ -167,7 +179,7 @@ const AddDailyPayment = () => {
 
     return (
         <div className='addUser'>
-            <h3 style={{ textAlign: 'center' }}>Add New Daily Payment</h3>
+             <h1 style={{ textAlign: 'center', fontWeight: 'bold', textShadow: '1px 1px 2px rgb(63, 7, 78)' }}>--Add New Daily Payment--</h1>
             {/* Show the spinner while loading */}
             {loading ? (
                 <Spinner loading={loading} />
